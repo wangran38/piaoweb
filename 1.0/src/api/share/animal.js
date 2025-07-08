@@ -1,0 +1,10 @@
+import request from '@/utils/request'
+
+export function getlist(params) {
+  return request({
+    url: '/admin/animal/getall',
+    method: 'post',
+    data: params
+  })
+}
+
