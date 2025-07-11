@@ -1,8 +1,10 @@
 <template>
   <div class="app-container">
     <div class="filter-container" style="margin:0 0 10px 0;">
-      <el-input v-model="listQuery.animal_name" placeholder="动物简称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.efirstname" placeholder="首字母" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.animal_name" placeholder="动物简称" style="width: 200px;" class="filter-item"
+        @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.efirstname" placeholder="首字母" style="width: 200px;" class="filter-item"
+        @keyup.enter.native="handleFilter" />
       <!--<el-select v-model="listQuery.importance" placeholder="Imp" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
       </el-select>-->
@@ -12,31 +14,16 @@
       <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
         <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        查找
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handle">
+        添加
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleClear">
-       清空
-      </el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">
-        导出
-      </el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">
-       展开详情
-      </el-checkbox>
+
     </div>
 
-    <el-table
-      :key="tableKey"
-      v-loading="listLoading"
-      :data="list"
-      border
-      fit
-      highlight-current-row
-      style="width: 100%;"
-      @sort-change="sortChange"
-    >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="60" :class-name="getSortClass('id')">
+    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;"
+      @sort-change="sortChange">
+      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="60"
+        :class-name="getSortClass('id')">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -44,7 +31,7 @@
 
       <el-table-column label="pid" width="60">
         <template slot-scope="{row}">
-<span>{{ row.pid }}</span>
+          <span>{{ row.pid }}</span>
         </template>
       </el-table-column>
       <el-table-column label="动物名称" width="80px" align="center">
@@ -59,18 +46,18 @@
       </el-table-column>
       <el-table-column label="拼音" min-width="">
         <template slot-scope="{row}">
-<span>{{ row.ename }}</span>
+          <span>{{ row.ename }}</span>
         </template>
       </el-table-column>
       <el-table-column label="首字母" min-width="50px">
         <template slot-scope="{row}">
-<span>{{ row.efirstname }}</span>
+          <span>{{ row.efirstname }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="拼音" min-width="">
+      <!-- <el-table-column label="拼音" min-width="">
         <template slot-scope="{row}">
-<span>{{ row.keywords }}</span>
-        </template>
+          <span>{{ row.keywords }}</span>
+        </template> -->
       </el-table-column>
       <!-- <el-table-column label="code" min-width="50px">
         <template slot-scope="{row}">
@@ -89,11 +76,11 @@
       </el-table-column> -->
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <!--<el-button type="primary" size="mini" @click="handleUpdate(row)">
+          <el-button type="primary" size="mini" @click="handle2(row)">
             修改
-          </el-button>-->
-          <el-button v-if="row.status!='published'" size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            详细
+          </el-button>
+          <el-button v-if="row.status != 'published'" size="mini" type="danger" @click="deleteAnimal(row)">
+            删除
           </el-button>
           <!--<el-button v-if="row.status!='draft'" size="mini" @click="handleModifyStatus(row,'draft')">
             Draft
@@ -106,23 +93,55 @@
 
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
+      @pagination="getList" />
 
 
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">Confirm</el-button>
-      </span>
+    <el-dialog :visible.sync="dialogPvVisible" title="添加怪兽">
+      <el-form ref="formData" :model="formData">
+        <el-form-item label="怪兽名称">
+          <el-input v-model="formData.animal_name"></el-input>
+        </el-form-item>
+        <el-form-item label="怪兽拼音">
+          <el-input v-model="formData.ename"></el-input>
+        </el-form-item>
+        <el-form-item label="怪兽拼音首字母">
+          <el-input v-model="formData.efirstname"></el-input>
+        </el-form-item>
+        <el-form-item label="怪兽图片地址">
+          <el-input v-model="formData.image"></el-input>
+        </el-form-item>
+        <el-form-item label="序号">
+          <el-input v-model="formData.haoma"></el-input>
+        </el-form-item>
+        <el-button type="success" style="width: 100%;" @click="addAnimal">提交</el-button>
+      </el-form>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogPvVisible2" title="修改怪兽">
+      <el-form ref="formData" :model="temporaryFormData">
+        <el-form-item label="怪兽名称">
+          <el-input v-model="temporaryFormData.animal_name"></el-input>
+        </el-form-item>
+        <el-form-item label="怪兽拼音">
+          <el-input v-model="temporaryFormData.ename"></el-input>
+        </el-form-item>
+        <el-form-item label="怪兽拼音首字母">
+          <el-input v-model="temporaryFormData.efirstname"></el-input>
+        </el-form-item>
+        <el-form-item label="怪兽图片地址">
+          <el-input v-model="temporaryFormData.image"></el-input>
+        </el-form-item>
+        <el-form-item label="序号">
+          <el-input v-model="temporaryFormData.haoma"></el-input>
+        </el-form-item>
+        <el-button type="success" style="width: 100%;" @click="updateAnimal">修改</el-button>
+      </el-form>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getlist} from '@/api/share/animal'
+import { getlist, addData, editData, delData } from '@/api/share/animal'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -147,6 +166,14 @@ export default {
   },
   data() {
     return {
+      formData: {
+        animal_name: '', // 怪兽名称
+        ename: '', // 怪兽拼音
+        efirstname: '', // 名称首拼
+        image: '', // 怪兽网络地址
+        haoma: '' // 号码
+      },
+      temporaryFormData: {},
       tableKey: 0,
       list: null,
       total: 0,
@@ -161,8 +188,8 @@ export default {
         pid: 0,
         // sort: '+id'
       },
-    //   importanceOptions: [1, 2, 3],
-    //   calendarTypeOptions,
+      //   importanceOptions: [1, 2, 3],
+      //   calendarTypeOptions,
       sortOptions: [{ label: 'ID 顺序', key: '+id' }, { label: 'ID 倒序', key: '-id' }],
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
@@ -175,7 +202,8 @@ export default {
         type: '',
         status: 'published'
       },
-      dialogFormVisible: false,
+      dialogFormVisible: false, // 控制添加怪兽弹框
+      dialogPvVisible2: false, // 控制修改怪兽弹框
       dialogStatus: '',
       textMap: {
         update: 'Edit',
@@ -195,13 +223,91 @@ export default {
     this.getList()
   },
   methods: {
+    /**
+     * 初始化提交表单
+    */
+    initFormData() {
+      this.formData = {
+        animal_name: '', // 怪兽名称
+        ename: '', // 怪兽拼音
+        efirstname: '', // 名称首拼
+        image: '', // 怪兽网络地址
+        haoma: '' // 号码
+      }
+    },
+    /**
+     * 怪兽删除提交
+    */
+    deleteAnimal(row) {
+      delData(row).then(response => {
+        if (response.code == 200) {
+          this.$notify({
+            title: 'Success',
+            message: '删除成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.getList()
+        }
+
+      })
+    },
+
+    /**
+     * 修改怪兽提交
+    */
+    updateAnimal() {
+      editData(this.temporaryFormData).then(response => {
+        console.log(response)
+        if (response.code == 200) {
+          this.$notify({
+            title: 'Success',
+            message: '修改成功',
+            type: 'success',
+            duration: 2000
+          })
+          setTimeout(() => {
+            this.dialogPvVisible2 = false
+            this.getList()
+
+          }, 1.5 * 1000)
+        }
+
+
+      })
+    },
+    /**
+     * 添加怪兽提交
+    */
+    addAnimal() {
+      addData(this.formData).then(response => {
+        console.log(response)
+        if (response.code == 200) {
+          this.$notify({
+            title: 'Success',
+            message: '添加成功',
+            type: 'success',
+            duration: 2000
+          })
+          setTimeout(() => {
+            this.dialogPvVisible = false
+            this.initFormData()
+            this.getList()
+
+          }, 1.5 * 1000)
+        }
+
+
+      })
+    },
+    /**
+     * 获取怪兽列表
+    */
     getList() {
       this.listLoading = true
       getlist(this.listQuery).then(response => {
-          this.list = response.data.listdata
+        this.list = response.data.listdata
         this.total = response.data.totalnum
-
-        // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
@@ -243,77 +349,22 @@ export default {
         type: ''
       }
     },
-     handleClear() {
-      this.getList()
+
+
+    /**
+     * 调起添加弹窗
+    */
+    handle() {
+      this.dialogPvVisible = true
     },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
-      })
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
-      })
+    /**
+     * 
+     * 调起修改弹窗
+    */
+    handle2(row) {
+      console.log(row)
+      this.temporaryFormData = JSON.parse(JSON.stringify(row))
+      this.dialogPvVisible2 = true
     },
     handleDownload() {
       this.downloadLoading = true
@@ -338,7 +389,7 @@ export default {
         }
       }))
     },
-    getSortClass: function(key) {
+    getSortClass: function (key) {
       const sort = this.listQuery.sort
       return sort === `+${key}` ? 'ascending' : 'descending'
     }

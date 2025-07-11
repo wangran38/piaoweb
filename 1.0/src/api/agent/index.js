@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getlist(params) {
   return request({
-    url: '/admin/animal/getall',
+    url: '/admin/agentuser/getall',
     method: 'post',
     data: params
   })
@@ -10,7 +10,7 @@ export function getlist(params) {
 
 export function addData(params) {
   return request({
-    url: '/admin/animal/add',
+    url: '/admin/agentuser/add',
     method: 'post',
     data: params
   })
@@ -18,7 +18,7 @@ export function addData(params) {
 
 export function editData(params) {
   return request({
-    url: '/admin/animal/edit',
+    url: '/admin/agentuser/edit',
     method: 'post',
     data: params
   })
@@ -26,7 +26,7 @@ export function editData(params) {
 
 export function delData(params) {
   return request({
-    url: '/admin/animal/del',
+    url: '/admin/agentuser/del',
     method: 'post',
     data: params
   })
